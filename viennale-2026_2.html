@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viennale 2026 Auswahl</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: Kopf mit Kennzahlen, Filterleiste (sticky), Karten-Liste wie Kinokarten mit Rating-Stub rechts */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --fg:#14202b; --muted:#5a6876; --line:#d5dce3;
+  --accent:#0b7f8c; --accent-soft:#d6eef0;
+  --good:#1f7a44; --good-bg:#dcf1e3; --mid:#7a5a10; --mid-bg:#f6ecd2; --low:#8a3b32; --low-bg:#f6dfdb;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d151c; --surface:#15212b; --fg:#e4ebf0; --muted:#93a3b1; --line:#253441;
+  --accent:#4cc3cf; --accent-soft:#163a40;
+  --good:#7fd6a0; --good-bg:#183a27; --mid:#e6c56f; --mid-bg:#3a3018; --low:#ef9a8f; --low-bg:#3d211e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d151c; --surface:#15212b; --fg:#e4ebf0; --muted:#93a3b1; --line:#253441;
+  --accent:#4cc3cf; --accent-soft:#163a40;
+  --good:#7fd6a0; --good-bg:#183a27; --mid:#e6c56f; --mid-bg:#3a3018; --low:#ef9a8f; --low-bg:#3d211e; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+header h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5vw,44px);line-height:1.05;margin:0 0 6px;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 24px;margin:16px 0 0;font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.stats b{color:var(--fg);font-weight:500}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;margin-top:18px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar input,.bar select{font:inherit;font-size:14px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:0}
+.bar input{flex:1 1 220px}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;font-size:13px;border:0;background:var(--surface);color:var(--muted);padding:7px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--fg);font-weight:600}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-left:auto}
+#list{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.film{display:grid;grid-template-columns:1fr 112px;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.main{padding:14px 16px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.top{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.title{font-family:var(--f-display);font-weight:700;font-size:19px;line-height:1.2;margin:0}
+.alt{color:var(--muted);font-size:14px}
+.meta{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.desc{margin:0;max-width:72ch}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12px;padding:1px 8px;border-radius:99px;background:var(--accent-soft);color:var(--fg)}
+.tag.short{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.scr{font-family:var(--f-mono);font-size:12px;color:var(--fg);display:flex;flex-wrap:wrap;gap:4px 14px}
+.scr span::before{content:"▸ ";color:var(--accent)}
+.links{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:13px}
+.links a.btn{background:var(--accent);color:var(--surface);padding:3px 10px;border-radius:5px;font-weight:600}
+.links a.btn:hover{text-decoration:none;filter:brightness(1.1)}
+.links a{color:var(--accent);text-decoration:none}
+.links a:hover{text-decoration:underline}
+.stub{border-left:1px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 6px;text-align:center;font-variant-numeric:tabular-nums}
+.r{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1;padding:6px 10px;border-radius:6px}
+.r.good{background:var(--good-bg);color:var(--good)} .r.mid{background:var(--mid-bg);color:var(--mid)} .r.low{background:var(--low-bg);color:var(--low)} .r.none{color:var(--muted);font-size:20px}
+.lab{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mc{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.mc b{color:var(--fg);font-weight:500}
+.filters{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.frow{display:grid;grid-template-columns:84px 1fr;gap:10px;align-items:start}
+.flab{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:99px;padding:4px 11px;cursor:pointer}
+.chip i{font-style:normal;font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-left:2px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.chip[aria-pressed="true"] i{color:var(--surface);opacity:.8}
+.chip:disabled{opacity:.4;cursor:default}
+.chip.reset{border-style:dashed;color:var(--muted)}
+.tag.kat{background:var(--fg);color:var(--surface);font-weight:500}
+.empty{color:var(--muted);margin-top:16px}
+@media (max-width:560px){.frow{grid-template-columns:1fr;gap:4px}.flab{padding-top:0}}
+.note{margin-top:24px;font-size:13px;color:var(--muted);max-width:75ch}
+@media (max-width:560px){.film{grid-template-columns:1fr 84px}.r{font-size:22px}.main{padding:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Viennale 2026 – deine Auswahl</h1>
+  <p>Die Empfehlungen aus dem Film-Navigator mit Kurzbeschreibung, Terminen und IMDb-Daten. Festival: 22. Oktober bis 3. November 2026.</p>
+  <div class="stats" id="stats"></div>
+</header>
+<div class="bar">
+  <input id="q" type="search" placeholder="Titel, Regie, Land, Kino …" aria-label="Suche">
+  <div class="seg" role="group" aria-label="Sektion">
+    <button id="s-all" data-s="all" aria-pressed="true">Alle</button>
+    <button id="s-f" data-s="F" aria-pressed="false">Langfilme</button>
+    <button id="s-s" data-s="S" aria-pressed="false">Kurzfilme</button>
+  </div>
+  <select id="sort" aria-label="Sortierung">
+    <option value="r">IMDb-Rating ↓ (ab 50 Stimmen zuerst)</option>
+    <option value="mc">Metascore ↓</option>
+    <option value="v">IMDb-Stimmen ↓</option>
+    <option value="date">Erster Termin</option>
+    <option value="t">Titel A–Z</option>
+  </select>
+  <select id="minr" aria-label="Mindestrating">
+    <option value="0">jedes Rating</option>
+    <option value="6">ab 6.0</option>
+    <option value="7">ab 7.0</option>
+    <option value="7.5">ab 7.5</option>
+  </select>
+  <span class="count" id="count"></span>
+</div>
+<div class="filters">
+  <div class="frow"><span class="flab">Kategorie</span><div class="chips" id="kats"></div></div>
+  <div class="frow"><span class="flab">Tags</span><div class="chips" id="tags"></div></div>
+</div>
+<div id="list"></div>
+<p class="empty" id="empty" hidden>Keine Filme für diese Auswahl. Entferne einen Tag oder wähle eine andere Kategorie.</p>
+<p class="note">IMDb-Werte Stand 15.10.2026. Viele Filme sind Festival-Premieren mit wenigen Stimmen; Ratings unter ~100 Stimmen sind wackelig. Der Metascore (Kritikerschnitt) ist bei Arthouse oft aussagekräftiger. Bei Kurzfilmen laufen mehrere Filme in einem gemeinsamen Programm. Der Navigator zeigte 98 Treffer, 94 davon sind als einzelne Filmseiten verlinkt und hier enthalten.</p>
+</div>
+
+<script>
+// [slug, title, alt, director, country, min, F/S, desc, imdb, rating, votes, metascore, genres, screenings]
+const D=[
+["1518","15/18","A Place to Heal","Cédric Kahn","FR",104,"F","Kinder- und Jugendpsychiatrie als Bühne: Kahn (spielt selbst den Chefarzt) inszeniert großteils Laien-Teenager mit enormer Energie. Schwere Themen, viel Leben, am Ende ein Schritt ins Fantastische.","tt42826707",6.5,68,null,"Drama","Sun 25 Oct 21:30 Urania / Sun 01 Nov 15:30 Stadtkino im Künstlerhaus"],
+["9-temples-heaven","9 Temples to Heaven","","Sompot Chidgasornpongse","TH u.a.",140,"F","Eine thailändische Familie fährt die kranke Großmutter an einem Tag zu neun Tempeln. Road-Movie, das langsam ins Traumhafte und Metaphysische abdriftet.","tt37740247",6.6,91,79,"Drama","Mon 26 Oct 12:30 Metro, Kinosalon / Tue 03 Nov 12:30 Metro, Kinosalon"],
+["correspondence","A Correspondence","","Josh Weissbach, Ben Balcom","US",8,"S","Experimenteller Briefwechsel zweier Filmemacher: Oberflächen, Texturen und Räume in assoziativer Montage. Programm „Illumination“.","tt44121967",null,0,null,"Kurzfilm","Wed 28 Oct 16:15 Filmmuseum / Thu 29 Oct 17:30 Metro, Kinosalon"],
+["long-winter","A Long Winter","","Andrew Haigh","CA/UK",117,"F","Colorado, 1950er: Ein junger Mann kehrt auf die Familienhütte in den Bergen zurück, die Mutter verschwindet, der Winter setzt ein. Leises Coming-of-Age vom Regisseur von „All of Us Strangers“.","tt38220998",6.5,177,77,"Drama","Sat 24 Oct 16:30 Urania / Mon 26 Oct 12:30 Gartenbaukino"],
+["person-forest","A Person of the Forest","","Miranda Pennell","UK/NL",34,"S","Koloniale Archivbilder von Plantagen auf Sumatra, durchstreift von einer Affen-Geisterstimme auf der Suche nach Widerstand. Programm „Planetary Fortune“.","",null,0,null,"Kurzfilm","Fri 30 Oct 16:15 Filmmuseum / Sat 31 Oct 17:45 Metro, Kinosalon"],
+["ali-je-bilo-kaj-avantgardnega","Ali je bilo kaj avantgardnega?","Alpe-Adria Underground!","Jurij Meden, Matevž Jerman","SI",98,"F","Rasante Doku über die Amateur-Filmclubs im sozialistischen Jugoslawien und ihre wilde Avantgarde – Explosionen, Abstraktion, Psychedelik. Unterhaltsame Einführung.","tt36942960",7.6,10,null,"Doku","Wed 28 Oct 15:15 Stadtkino im Künstlerhaus"],
+["incomplete-calendar","An Incomplete Calendar","","Sanaz Sohrabi","CA/IR u.a.",77,"F","Essayfilm über die OPEC, einen venezolanischen Chor der 1970er und transnationale Solidarität des Globalen Südens – aus Briefmarken, Fotos und Archivton.","tt47996290",null,0,null,"Doku","Mon 26 Oct 15:30 Metro, Kinosalon"],
+["night","At Night","","Beatrice Gibson","FR/UK",87,"F","Eine Filmemacherin (Gibson selbst) lässt Familie zurück und streift eine Nacht durch Paris, trifft Frauen um die vierzig, die offen über ihr Leben reden. Kollektive Autofiktion.","",null,0,null,"Drama","Mon 26 Oct 21:00 Filmmuseum / Tue 27 Oct 15:00 Metro, Kinosalon"],
+["auslandsreise","Auslandsreise","Foreign Travel","Ted Fendt","DE",63,"F","Ein Jahr mit Leonie, die das Werk der Autorin Anna Maria Ortese liest; Übersetzung als Lebensfrage. Präzise, ruhige Bildsprache.","tt39382948",6.0,17,null,"Drama","Fri 23 Oct 13:30 Filmmuseum / Sun 25 Oct 18:30 Filmmuseum"],
+["behemoth","Behemoth!","","Tony Gilroy","US",124,"F","Pedro Pascal als Cellist, der nach Los Angeles zur sterbenden Mutter zurückkehrt – mit Bruder (Will Forte) und Ex (Olivia Wilde). Elegantes Drama vom „Michael Clayton“-Regisseur.","tt36415529",7.4,157,72,"Drama/Musik","Tue 27 Oct 15:00 Gartenbaukino / Wed 28 Oct 06:30 Gartenbaukino / Tue 03 Nov 13:00 Gartenbaukino"],
+["bernd","Bernd","","Jan Soldat","AT/DE",3,"S","Würdevolles Porträt eines nackten Mannes, der durch seine kleine Wohnung führt. Programm „Experiences Beyond“.","",null,0,null,"Kurzfilm","Fri 23 Oct 16:00 Filmmuseum / Sun 01 Nov 17:30 Metro, Kinosalon"],
+["bucking-fastard","Bucking Fastard","","Werner Herzog","IE/US",109,"F","Herzogs erster Spielfilm seit sieben Jahren: Kate und Rooney Mara als unzertrennliche Schwestern, die sich ins irische Hinterland zurückziehen. Komisch-märchenhafte Außenseitergeschichte.","tt35670577",6.5,245,60,"Drama","Sat 31 Oct 10:45 Gartenbaukino / Mon 02 Nov 20:45 Stadtkino im Künstlerhaus"],
+["bunker","Bunker","","Florian Zeller","ES/FR",126,"F","Javier Bardem und Penélope Cruz als Londoner Paar in der Krise: Er soll einem Tech-Milliardär einen Bunker bauen, der Nachbar bricht ein Fenster in ihre Wand. Thriller über Klassen- und Untergangsangst.","tt36770512",6.3,287,52,"Drama/Thriller","Thu 29 Oct 20:30 Gartenbaukino / Sat 31 Oct 15:30 Gartenbaukino"],
+["chronovisor","Chronovisor","","Jack Auen, Kevin Walker","US",99,"F","Eine Philosophieprofessorin jagt dem legendären „Chronovisor“ nach, einer Maschine, die Geschichte sichtbar machen soll. 16mm, Extreme Close-ups, Rabbit-Hole-Thriller beim Lesen.","tt39196981",7.1,155,89,"Mystery/Sci-Fi","Sat 31 Oct 18:30 Metro, Historischer Saal / Mon 02 Nov 13:30 Metro, Historischer Saal"],
+["clarissa","Clarissa","","Arie Esiri, Chuko Esiri","US",125,"F","„Mrs Dalloway“ nach Lagos verlegt: Sophie Okonedo bereitet eine Party vor, Rückblenden in die 90er (Ayo Edebiri, David Oyelowo). Klassisch-elegant mit ironischem Unterton.","tt33335610",6.6,106,85,"Drama","Wed 28 Oct 11:00 Urania / Fri 30 Oct 16:00 Urania"],
+["corset","Le corset","Iron Boy","Louis Clichy","BE/FR",90,"F","Animationsfilm: Ein Bauernbub muss ein eisernes Korsett tragen und entdeckt die Orgelmusik. Tusche und Aquarell, Fauré-Requiem im Soundtrack. Auch für Jugendliche.","tt36639956",7.9,242,84,"Animation","Sat 24 Oct 10:00 Gartenbaukino / Sun 01 Nov 16:30 Urania"],
+["crystal-palace","Crystal Palace","","Linda Izcali Scobie","US",8,"S","Zwei übereinandergelegte Filme als Meditation über Bewegung und Farbe auf dem Eis. Teil des Programms „The Phantom Archipelago“ (Phil-Solomon-Hommage).","",null,0,null,"Kurzfilm","Tue 27 Oct 21:30 Filmmuseum / Wed 28 Oct 13:30 Filmmuseum"],
+["da-xi-yang","Da Xi Yang","Atlantic Rhapsody","Zhong Kaifeng","CN",101,"F","Ein junger Mann kocht versehentlich einen Hai im Supermarkt und gerät auf eine Alice-im-Wunderland-Reise auf der Suche nach seinem Vater. Kaleidoskopisches Debüt mit vielen Filmformaten.","tt32272953",null,0,null,"Drama/Fantasy","Sun 01 Nov 15:15 Metro, Historischer Saal / Mon 02 Nov 15:15 Metro, Kinosalon"],
+["debut","The Debut","Das Debüt","Jesse Eisenberg","US",105,"F","Julianne Moore als Hausfrau, die eine Mini-Rolle im Laientheater-Musical als Method Actor ernst nimmt, gegen Regisseur Paul Giamatti. Musikkomödie, Songs von Eisenberg.","tt34718200",7.8,338,76,"Komödie/Musical","Thu 29 Oct 18:00 Gartenbaukino / Mon 02 Nov 13:00 Gartenbaukino"],
+["difficult-bride","The Difficult Bride","","Rubaiyat Hossain","FR/BD u.a.",88,"F","Eine reiche Braut in Dhaka erstickt an den Schönheitsritualen vor der Hochzeit; ihr Körper beginnt zu rebellieren. Mit Body-Horror-Anklängen.","tt42827406",5.6,37,null,"Drama/Horror","Tue 27 Oct 21:15 Urania / Thu 29 Oct 14:30 Stadtkino im Künstlerhaus"],
+["du-ling-zhi-ying","Du ling zhi ying","Torino Shadow","Jia Zhangke","CN/IT",32,"S","Zhao Tao allein in Turin, landet im Kinomuseum der Mole Antonelliana. Kurzer Film über Globalisierung und Kino als Verbindung. Programm „Burning Shadows“.","tt42407244",6.0,10,null,"Kurzfilm","Mon 26 Oct 16:15 Filmmuseum / Tue 27 Oct 17:30 Metro, Kinosalon"],
+["echo-chamber","The Echo Chamber","","Andrea Pallaoro","IT/BE",123,"F","Ein Musiker nach einer Überdosis versucht zu heilen, begleitet von einer Musik-Ikone (Susan Sarandon). Nach einem Drehbuch von Bernardo Bertolucci.","tt9395802",5.4,202,63,"Drama","Tue 27 Oct 17:30 Gartenbaukino / Wed 28 Oct 15:00 Gartenbaukino"],
+["eight-bridges","Eight Bridges","","James Benning","US",82,"F","Acht Brücken in den USA in langen statischen Einstellungen, endloser Verkehr. Beobachtendes Kino über ein Land, das Geschwindigkeit anbetet. Ohne Dialog.","tt39369947",6.0,26,null,"Doku","Thu 29 Oct 21:15 Filmmuseum / Fri 30 Oct 18:30 Metro, Historischer Saal"],
+["es-ist-da","Es ist da","It's There","Friedl vom Gröller","AT",4,"S","Visuelles Gedicht nach Versen von Jelena Arrouas: Türen, offen und zu, dann ein Markt. Stumm. Programm „Right Here“.","",null,0,null,"Kurzfilm","Fri 30 Oct 15:00 Metro, Kinosalon / Sat 31 Oct 16:30 Filmmuseum"],
+["eternity","Eternity","","Susanne Regina Meures","CH",72,"F","Florentina Holzingers Performance-Kosmos auf einem Gletscher: nackte Frauen, Rennautos, Flammenwerfer, Eishöhlen-Rave. Extrem, opernhaft, provokant.","",null,0,null,"Doku/Performance","Sun 01 Nov 23:00 Stadtkino im Künstlerhaus / Mon 02 Nov 18:30 Gartenbaukino"],
+["everybody-digs-bill-evans","Everybody Digs Bill Evans","","Grant Gee","UK/IE",102,"F","Jazzpianist Bill Evans 1961 nach dem Unfalltod seines Bassisten: Trauer, Heroin, Schaffenskrise. Kontrastreiches Schwarzweiß, Anders Danielsen Lie in der Hauptrolle.","tt34347792",6.9,310,82,"Biopic/Musik","Tue 27 Oct 12:45 Gartenbaukino / Tue 03 Nov 15:30 Urania"],
+["everytime","Everytime","","Sandra Wollner","AT/DE",123,"F","Eine Familie nach einem Verlust, von Berlin nach Teneriffa; Trauer als Störung von Zeit und Wahrnehmung, digitale Spuren als Gefühlsräume. Mit Birgit Minichmayr.","tt41592057",7.3,529,89,"Drama","Mon 26 Oct 18:00 Gartenbaukino / Tue 27 Oct 20:30 Stadtkino im Künstlerhaus"],
+["fa-xian-zhi-lu","Fa xian zhi lü","Zoom In, Zoom Out","Dong Jie","CN",117,"F","Ein Spieleentwickler sucht seinen verschwundenen Mitbewohner, erst im Online-Game, dann in der Realität. Thriller im Videospiel-Look, der das Virtuelle positiv neu denkt.","tt43729090",6.8,14,null,"Drama/Mystery","Sat 24 Oct 13:30 Urania / Sun 25 Oct 18:30 Metro, Historischer Saal"],
+["figli-della-scimmia","I figli della scimmia","Children of the Monkey","Tommaso Landucci","IT",110,"F","Ein Vater zwischen der Pflege seines behinderten Sohnes und der leichteren Beziehung zu seinem Neffen. Ruhiges Familiendrama ohne Moralkeule.","tt39390583",7.3,103,null,"Drama","Sun 25 Oct 13:45 Urania / Fri 30 Oct 13:30 Urania"],
+["filipinana","Filipiñana","","Rafael Manuel","SG/PH u.a.",100,"F","Eine junge Caddie auf einem elitären Golfplatz in Manila: trockene Satire über Klasse und Dienstleistung, streng komponiert.","tt29512008",6.6,376,82,"Komödie/Drama","Fri 23 Oct 17:15 Metro, Kinosalon / Sat 24 Oct 11:00 Urania"],
+["fire-flies","Fire Flies","","Zheng Lu Xinyuan","CN",18,"S","Nachts mit Kamera und Taschenlampe im Wald: Glühwürmchen, Spinnennetze, grünlich pixelige Digitalbilder.","tt43744931",null,0,null,"Kurzfilm","Wed 28 Oct 16:15 Filmmuseum / Thu 29 Oct 17:30 Metro, Kinosalon"],
+["fjord","Fjord","","Cristian Mungiu","RO/NO u.a.",146,"F","Ein blauer Fleck an einem Mädchen bringt ein norwegisches Dorf gegen eine evangelikale rumänisch-norwegische Familie auf. Spannungsdrama über Misstrauen und Behörden.","tt35410859",7.6,4650,79,"Drama/Thriller","Sat 24 Oct 12:30 Gartenbaukino / Mon 02 Nov 15:30 Gartenbaukino"],
+["foldszint","Földszint","Ground Floor","Gábor Reisz","HU/IT",108,"F","Vom Regisseur von „Erklärung für alles“: ein einziges Budapester Wohnhaus als Querschnitt der Gesellschaft. Tragikomisch.","tt42685861",7.0,194,null,"Komödie/Drama","Mon 26 Oct 18:00 Stadtkino im Künstlerhaus / Tue 27 Oct 16:00 Urania"],
+["foret-ivre","Forêt ivre","Forest High","Manon Coubia","BE/FR",102,"F","Drei Geschichten, drei Frauen, dieselbe Hütte in den Nordalpen zu verschiedenen Jahreszeiten.","tt39381659",6.3,45,null,"Drama","Fri 23 Oct 11:00 Metro, Historischer Saal / Tue 27 Oct 13:30 Metro, Historischer Saal"],
+["inside-out-die-architektur-von-peter-zumthor","From Inside Out","Die Architektur von Peter Zumthor","Wim Wenders","CH/DE",114,"F","Wim Wenders porträtiert Architekt Peter Zumthor in 3D. Handwerk trifft Handwerk.","tt43704808",7.1,33,null,"Doku","Sun 25 Oct 21:00 Filmmuseum / Sun 01 Nov 21:00 Filmmuseum / Mon 02 Nov 18:30 Filmmuseum"],
+["ga-neung-han-sa-rang","Ga-neung-han Sa-rang","Possible Love","Lee Chang-dong","KR/US",164,"F","Lee Chang-dongs erster Film seit „Burning“: ein Arbeiterpaar nach einem niedergeschlagenen Streik, Liebe und Freundschaft unter wirtschaftlichem Druck. Epos.","tt37803364",8.1,551,93,"Drama","Sun 25 Oct 21:00 Gartenbaukino / Mon 26 Oct 21:00 Stadtkino im Künstlerhaus"],
+["garance","Garance","Another Day","Jeanne Herry","FR",120,"F","Eine begabte, aber erfolglose Pariser Schauspielerin über acht Jahre: Castings, Liebe, eine kranke Schwester und der wachsende Alkohol.","tt38584405",6.9,480,56,"Drama","Sun 01 Nov 10:00 Gartenbaukino / Mon 02 Nov 11:00 Urania"],
+["getraumte-abenteuer","Das geträumte Abenteuer","The Dreamed Adventure","Valeska Grisebach","DE/FR/BG/AT",167,"F","Ein Mann kehrt nach Jahren in seine bulgarische Grenzstadt zurück, mit dubiosen Geschäften und charmantem Lächeln. Grisebach („Western“) spielt mit Genre.","tt21188986",6.5,265,78,"Drama/Crime","Tue 27 Oct 20:30 Gartenbaukino / Wed 28 Oct 17:00 Urania"],
+["geunyeoga-doraon-nal","Geunyeoga doraon nal","The Day She Returns","Hong Sangsoo","KR",84,"F","Hongs 34. Film: Eine Schauspielerin kehrt nach Skandal-Pause zurück, Gespräche in einem deutschen Restaurant am Stadtrand von Seoul. Diesmal Bier statt Soju.","tt39368030",6.5,166,75,"Drama","Sun 25 Oct 16:30 Metro, Historischer Saal / Mon 02 Nov 16:00 Stadtkino im Künstlerhaus"],
+["ghazal-e-sorkh","Ghazal-e Sorkh","","Maryam Tafakory","IR/UK/FR",20,"S","Essay über Zensur und literarischen Widerstand im Iran der 1970er, rund um den Boykott des Shiraz-Kunstfestivals 1976.","tt43744663",null,0,null,"Kurzfilm","Sat 24 Oct 16:00 Filmmuseum / Sun 25 Oct 17:30 Metro, Kinosalon"],
+["gradiva","La Gradiva","","Marine Atlan","FR/IT",145,"F","Pariser Schüler auf Klassenfahrt mit ihrer Lateinlehrerin in Neapel: frech, klug, zwischen Antike, Sex und Politik. Kritiker-Liebling (Metascore 98).","tt36107185",7.4,557,98,"Drama","Sun 25 Oct 12:00 Stadtkino im Künstlerhaus / Mon 02 Nov 21:15 Metro, Historischer Saal"],
+["histoires-paralleles","Histoires parallèles","Parallel Tales","Asghar Farhadi","BE/FR/IT",139,"F","Farhadi über das Moraldilemma kreativer Arbeit: Wo endet Inspiration, wo beginnt Diebstahl? Rund um eine Schriftstellerin und die Leben, aus denen sie schöpft.","tt36646880",5.9,1427,41,"Drama/Thriller","Sun 25 Oct 12:00 Gartenbaukino / Thu 29 Oct 21:15 Urania"],
+["i-rarely-wake-dreaming","I Rarely Wake Up Dreaming","Selten wache ich träumend auf","Isabelle Stever","DE/UA",100,"F","Ein junges queeres ukrainisches Paar bei Kriegsbeginn; Olehs Transition wird an der Grenze zum bürokratischen Paradox.","tt27219293",6.5,29,null,"Drama","Sat 31 Oct 20:15 Stadtkino im Künstlerhaus / Sun 01 Nov 21:15 Urania"],
+["imperium","Imperium","","Sergei Loznitsa","DE/IT/FR/LT",175,"F","Unveröffentlichte Aufnahmen italienischer Kameraleute aus der UdSSR der 1970er, montiert zum Epos über eine gescheiterte Utopie.","tt37801860",6.7,18,null,"Doku","Sun 01 Nov 20:00 Metro, Historischer Saal / Tue 03 Nov 20:00 Metro, Kinosalon"],
+["inconnue","L'Inconnue","The Unknown","Arthur Harari","FR/IT",139,"F","Existenzieller Thriller: Ein Wesen stiehlt Körper durch Sex, die Opfer stecken danach in fremden Körpern fest.","tt32359586",6.4,541,60,"Thriller/Sci-Fi","Wed 28 Oct 20:30 Gartenbaukino / Thu 29 Oct 13:00 Urania"],
+["islas-afortunadas","Las islas afortunadas","The Fortunate Isles","Samuel M. Delgado, Helena Girón","ES/GR",80,"F","16mm-Film über die verdrängte Kolonialgeschichte der Kanaren, vom antiken Mythos bis Franco und Tourismus.","tt43441520",null,0,null,"Drama/Essay","Sat 31 Oct 18:30 Urania / Sun 01 Nov 13:00 Stadtkino im Künstlerhaus"],
+["joie-de-vivre-pt-1","Joie de vivre (Teil 1)","","Luca Guadagnino","IT",188,"F","Guadagninos persönlicher Doku-Essay über Bernardo Bertolucci, über sieben Stunden in zwei Teilen. Gespräche und Filmausschnitte, Teil 1 bis Mitte der 70er.","tt43704232",8.7,8,null,"Doku","Sat 31 Oct 13:30 Metro, Kinosalon"],
+["joie-de-vivre-pt-2","Joie de vivre (Teil 2)","","Luca Guadagnino","IT",242,"F","Teil 2 des Bertolucci-Essays: die Filme ab Mitte der 70er.","tt43704232",8.7,8,null,"Doku","Sun 01 Nov 20:00 Metro, Kinosalon"],
+["kettice","Ketticè","","Giovanni Tortorici","IT",107,"F","Sechzehn in Palermo 2012: Kiffen, Herumfahren im goldenen Licht, No-Future-Gefühl nach Berlusconi.","tt35284965",5.5,68,null,"Drama","Sun 01 Nov 13:30 Filmmuseum / Mon 02 Nov 15:30 Urania"],
+["kleine-buch","Das kleine Buch","","Friedl vom Gröller","AT",3,"S","Ein Miniaturbuch, Lachen, Kinder mit Schreibmaschine: verspielter Film über analoge Formate. Stumm.","",null,0,null,"Kurzfilm","Sun 01 Nov 16:15 Filmmuseum / Mon 02 Nov 18:00 Metro, Kinosalon"],
+["lave-forventninger","Lave forventninger","Low Expectations","Eivind Landsvik","DK/NO",105,"F","Nach einem Zusammenbruch kehrt eine junge Musikerin ins Elternhaus bei Oslo zurück und begegnet Langeweile und Alltag. Leises Debüt.","tt35603011",6.9,207,null,"Drama","Sat 24 Oct 21:30 Metro, Historischer Saal / Mon 26 Oct 16:00 Urania"],
+["leaving-light","Leaving Light","","Viktoria Schmid","AT",3,"S","Mehrfachbelichtungen ihres alten Ateliers: Licht als Farbfeld und Dauer. Ohne Dialog.","",null,0,null,"Kurzfilm","Wed 28 Oct 16:15 Filmmuseum / Thu 29 Oct 17:30 Metro, Kinosalon"],
+["loffel","Der Löffel","The Spoon","Nele Wohlatz","DE",15,"S","Schrebergarten-Idyll in Norddeutschland, bis eine junge Taiwanerin beim Mittagessen einen Löffel mit Hakenkreuz bekommt.","",null,0,null,"Kurzfilm","Sat 24 Oct 16:00 Filmmuseum / Sun 25 Oct 17:30 Metro, Kinosalon"],
+["london","London","","Sebastian Brameshuber","AT",122,"F","Viennale-Chauffeur Bobby Sommer fährt die Westautobahn hin und her und nimmt Mitfahrer mit. Fesselnder Autofilm, Begegnung um Begegnung.","",null,0,null,"Drama","Fri 23 Oct 18:00 Stadtkino im Künstlerhaus / Sat 24 Oct 13:00 Metro, Historischer Saal"],
+["loneliest-man-town","The Loneliest Man in Town","","Tizza Covi, Rainer Frimmel","AT",86,"F","Wiener Elvis-artiger Musiker Al Cook als letzter Bewohner eines Abrisshauses, zwischen Blues, VHS und Vinyl. Abschlussfilm (alle Säle am 3.11.).","tt39382808",7.3,164,null,"Doku/Drama","Tue 03 Nov 19:00 Gartenbaukino / Tue 03 Nov 20:45 Stadtkino im Künstlerhaus / Tue 03 Nov 21:00 Filmmuseum / Tue 03 Nov 21:00 Metro, Historischer Saal / Tue 03 Nov 21:15 Urania"],
+["man-i-love","The Man I Love","","Ira Sachs","US",95,"F","Ein charismatischer Downtown-Performer, schwer krank, probt mit seiner Theatertruppe und schwankt zwischen zwei Lieben. New York, Ende der 80er.","tt37522972",5.6,594,77,"Drama/Musical","Fri 30 Oct 18:00 Gartenbaukino / Sun 01 Nov 21:00 Gartenbaukino"],
+["manfriet","Manfriet","","Jan Soldat","AT/DE",3,"S","Nackter Mann posiert in klassischen Posen in seiner vollgeräumten Wohnung, wie eine Hausführung. Mit trockenem Humor.","",null,0,null,"Kurzfilm","Fri 23 Oct 16:00 Filmmuseum / Sun 01 Nov 17:30 Metro, Kinosalon"],
+["mara-ashaegh-chenan-bayad-ke-har-bari-ke-barkhizad-ghiamat-haaye-por-atash-ze-har-su-i","I Deserve a Lover …","Mara Ashaegh Chenan Bayad …","Mani Haghighi","IR",76,"F","Zwei Sammler in Täbris horten Fotos, Dokumente und Fragmente anonymer Leben. Doku über Archiv vs. Hortzwang.","tt43748683",null,0,null,"Doku","Sat 24 Oct 13:00 Stadtkino im Künstlerhaus / Sun 01 Nov 13:15 Metro, Historischer Saal"],
+["masao-adachi-takes-passport-photo","Masao Adachi Takes a Passport Photo","","Kamal Aljafari","DE/FR/JP",27,"S","Der Dissidenten-Filmemacher Masao Adachi lässt sich in einem alten Tokioter Fotostudio ein Passfoto machen.","tt43744680",6.0,5,null,"Kurzfilm","Sun 01 Nov 16:15 Filmmuseum / Mon 02 Nov 18:00 Metro, Kinosalon"],
+["meine-frau-weint","Meine Frau weint","My Wife Cries","Angela Schanelec","DE/FR",93,"F","„Warum weinst du?“ – ein Bauarbeiter und seine Frau. Schanelecs strenger, elliptischer Stil.","tt34934816",5.4,115,null,"Drama","Fri 23 Oct 18:30 Urania / Sun 25 Oct 21:00 Stadtkino im Künstlerhaus"],
+["merci-detre-venu","Merci d'être venu","Thanks For Coming","Alain Cavalier","FR",85,"F","Der über 90-jährige Cavalier mit seiner DV-Kamera: Selbstporträt und Testament aus 15 Jahren Lebensfragmenten.","tt41829928",null,0,null,"Doku","Fri 23 Oct 15:00 Metro, Kinosalon / Fri 30 Oct 11:00 Metro, Historischer Saal"],
+["morgen-vor-langer-zeit","Morgen vor langer Zeit","Tomorrow a Long Time Ago","Luise Donschen","DE",93,"F","Essay im Gewand der Fiktion, rund um Tübkes Bauernkriegspanorama in Bad Frankenhausen.","tt43666042",4.7,11,null,"Drama/Essay","Sun 25 Oct 16:00 Urania / Mon 26 Oct 21:15 Metro, Historischer Saal"],
+["morne-fortune","Morne Fortune","","Mara Chavez, doris duhennois","AT/UK u.a.",13,"S","Experimentelle Doku über die Kolonialgeschichte von Saint Lucia und wer Denkmäler errichten darf.","tt44122096",null,0,null,"Kurzfilm","Fri 30 Oct 16:15 Filmmuseum / Sat 31 Oct 17:45 Metro, Kinosalon"],
+["nagidaiari","Nagidaiari","Nagi Notes","Fukada Koji","FR/JP u.a.",100,"F","Eine Architektin nach der Scheidung besucht ihre Ex-Schwägerin auf dem Land, wo ein Militärstützpunkt die Stille stört. Feines Drama über Familie und Kunst.","tt28551050",6.4,149,77,"Drama","Fri 23 Oct 13:30 Urania / Wed 28 Oct 13:00 Stadtkino im Künstlerhaus"],
+["no-good-men","No Good Men","","Shahrbanoo Sadat","AF/DE u.a.",104,"F","Kabul 2021 kurz vor der Taliban-Rückkehr: eine TV-Kamerafrau, Bollywood-Farben, Romantik am Abgrund. Zärtlich und bitter.","tt13868840",7.4,592,null,"Komödie/Romanze","Fri 23 Oct 21:00 Urania / Sat 24 Oct 10:30 Metro, Historischer Saal"],
+["noche-de-la-infancia","La noche de la infancia","From Dawn to Dawn","Ye Chen Xisi Sofia","ES/FR",94,"F","Die Regisseurin porträtiert ihren Bruder, der in Barcelonas chinesischen Gangs aufwuchs. Doku mit Fiktion, Hongkong-Kino als Echo.","tt41740085",7.0,6,null,"Doku","Sun 25 Oct 20:00 Metro, Kinosalon / Mon 26 Oct 16:15 Metro, Historischer Saal"],
+["normal-planet","Normal Planet","","E. Barbier, G. Causse, Q. L'helgoualc'h","FR",30,"S","Animierte Doku: Avatare in einem Online-Museum, Gesprächsfetzen formen den Raum.","tt46082510",null,0,null,"Kurzfilm","Fri 30 Oct 16:15 Filmmuseum / Sat 31 Oct 17:45 Metro, Kinosalon"],
+["nun-dul-dega-eomne","Nun dul dega eomne","Nowhere to Lay My Eyes","Hong Sangsoo","KR",72,"F","Hongs 35. Film, in Locarno zweimal ausgezeichnet. Kurz, beiläufig, typisch Hong.","tt43663820",6.6,35,null,"Drama","Mon 26 Oct 16:00 Stadtkino im Künstlerhaus / Tue 03 Nov 18:30 Filmmuseum"],
+["oase","Oase","Oasis","Jannis Lenz","DE/AT",118,"F","Zwei Teenager testen mit Paintball und Mutproben die Grenzen von Gewalt und Freundschaft; ein Mädchen filmt mit.","tt43704174",7.7,24,null,"Drama","Tue 27 Oct 17:30 Stadtkino im Künstlerhaus / Wed 28 Oct 16:00 Metro, Historischer Saal"],
+["objet","Objet a","","Ann Oren","DE/LU/GR",95,"F","Ein perfektes Chirurgenpaar entfernt einer jungen Frau einen sechsten Finger, sie will ihn behalten. Stilisiert, erotisch, seltsam.","tt29355619",6.1,18,null,"Drama","Fri 23 Oct 21:00 Stadtkino im Künstlerhaus / Sun 25 Oct 11:00 Urania"],
+["once-upon-time-harlem","Once Upon A Time In Harlem","","William Greaves, David Greaves","US",100,"F","1972 versammelt William Greaves Größen der Harlem Renaissance in Duke Ellingtons Wohnung zum Erinnern. Jetzt fertiggestellt.","tt39163347",7.5,110,93,"Doku/Musik","Fri 23 Oct 13:00 Stadtkino im Künstlerhaus / Thu 29 Oct 16:30 Urania"],
+["our-friendship-goes-far-beyond-these-experiences-and-recordings","Our friendship goes far beyond …","","Philipp Fleischmann, Mohammed H.","AT",7,"S","Eine Liebe, erzählt nur in Texttafeln, während einer der beiden Asyl sucht.","",null,0,null,"Kurzfilm","Fri 23 Oct 16:00 Filmmuseum / Sun 01 Nov 17:30 Metro, Kinosalon"],
+["providencia-e-guitarra","A providência e a guitarra","Providence and the Guitar","João Nicolau","PT",125,"F","Heutige Geldnöte, gespiegelt in einem reisenden Künstlerpaar des 19. Jahrhunderts. Verspielt, musikalisch.","tt32857347",5.2,48,null,"Drama","Fri 23 Oct 15:45 Metro, Historischer Saal / Sat 24 Oct 20:00 Metro, Kinosalon"],
+["queen-sea","Queen At Sea","","Lance Hammer","UK/US",121,"F","Eine Tochter will ihre demenzkranke Mutter vor dem Stiefvater schützen, dessen Intimität sie für übergriffig hält. Hartes Familiendrama.","tt27541205",7.7,517,91,"Drama","Thu 29 Oct 12:30 Gartenbaukino / Mon 02 Nov 20:45 Gartenbaukino"],
+["remotes","The Remotes","","John Torres","PH",153,"F","Torres' erster „richtiger“ Film: Anklänge an Krimi, Sci-Fi und Noir, philippinisches Independent-Kino.","tt29512170",5.8,5,null,"Mystery/Sci-Fi","Sat 31 Oct 21:00 Metro, Historischer Saal / Mon 02 Nov 20:00 Metro, Kinosalon"],
+["roches-rouges","Les roches rouges","Red Rocks","Bruno Dumont","ES/FR u.a.",91,"F","Kleinstadtkinder auf Quads, eine Romeo-und-Julia-Liebe über Klassengrenzen, Laien mit Deadpan-Humor. Dumont in Miniatur.","tt31383175",6.5,130,73,"Drama","Mon 26 Oct 21:15 Gartenbaukino / Tue 27 Oct 18:45 Urania"],
+["rukku-bakku","Rukku Bakku","Look Back","Koreeda Hirokazu","JP",100,"F","Realverfilmung des Manga von Fujimoto Tatsuki: zwei zeichnende Schülerinnen, Rivalität wird zu Freundschaft.","tt39094466",7.5,621,76,"Drama","Fri 23 Oct 15:30 Gartenbaukino / Sun 01 Nov 18:00 Stadtkino im Künstlerhaus"],
+["schiuma-di-mondi","Schiuma di mondi","Foam Of Worlds","Anna Marziano","IT/DE",80,"F","Eine Anwältin auf einer Insel bei Venedig, Alltag im Dauer-Notstand von Politik und Klima.","tt43671832",null,0,null,"Drama","Wed 28 Oct 18:30 Filmmuseum / Thu 29 Oct 12:30 Metro, Kinosalon"],
+["seize-moments-de-ma-vie","Seize moments de ma vie","Sixteen Moments of My Life","Albert Serra","FR/ES",85,"F","Scheinbar ein Konzertfilm mit Ingrid Caven, tatsächlich komplett von Serra inszeniert.","tt43660912",6.3,11,null,"Doku/Musik","Wed 28 Oct 19:00 Metro, Historischer Saal / Thu 29 Oct 22:45 Stadtkino im Künstlerhaus"],
+["sense-water","Sense Of Water","","Mohammad Rasoulof","DE/IR",39,"S","Ein iranischer Schriftsteller im Exil zwischen Sprachbarriere und Einsamkeit, nach Rasoulofs eigener Erfahrung.","tt39381182",5.9,11,null,"Kurzfilm","Sat 24 Oct 16:00 Filmmuseum / Sun 25 Oct 17:30 Metro, Kinosalon"],
+["soudain","Soudain","All of a Sudden","Hamaguchi Ryusuke","FR/JP/DE/BE",195,"F","Hamaguchi in Paris: langsame, intensive Studie über Empathie und Fürsorge, die Freundschaft zweier Frauen rund um ein Pflegeheim.","tt36834996",8.1,1020,87,"Drama","Sat 24 Oct 20:30 Stadtkino im Künstlerhaus / Sat 31 Oct 12:00 Urania"],
+["sounds-home","Sounds From Home","","Nathan Silver","FR/US",7,"S","Wie überlebt man die Rechte? Auswandern oder Vögel beobachten. Nachrichten der Mutter von zuhause.","tt43707529",null,0,null,"Kurzfilm","Sat 24 Oct 16:00 Filmmuseum / Sun 25 Oct 17:30 Metro, Kinosalon"],
+["succedera-questa-notte","Succederà questa notte","It Will Happen Tonight","Nanni Moretti","ES/FR/IT",103,"F","Romantisches Melodram über zwei Jahrzehnte: Matteo (Louis Garrel) und Greta kreuzen sich immer wieder zur falschen Zeit.","tt37341481",6.0,98,54,"Romanze/Drama","Mon 26 Oct 21:30 Urania / Fri 30 Oct 15:45 Gartenbaukino"],
+["tangles","Tangles","Tangles – Durcheinander","Leah Nelson","US/CA",102,"F","Animationsfilm, San Francisco in den 90ern: eine junge queere Illustratorin, Karriere und Liebe, dann eine familiäre Krise.","tt22183852",7.9,190,null,"Animation","Sun 25 Oct 23:30 Stadtkino im Künstlerhaus / Tue 27 Oct 15:15 Stadtkino im Künstlerhaus"],
+["too-much-sugar","Too Much Sugar","","Robert Greene","US",98,"F","Moberly, Missouri: ein 44-jähriger Zimmermann und Ex-Häftling, der sich Kämpfer nennt. Doku-Fiktions-Hybrid über Klasse in Amerika.","tt43704169",7.4,17,82,"Drama","Mon 26 Oct 14:00 Urania / Mon 02 Nov 23:00 Stadtkino im Künstlerhaus"],
+["tutti-frutti","Tutti Frutti","","Céline Sciamma","FR",44,"F","Sciammas filmisches Notizbuch seit 2022: Beobachtungen, Erinnerungen, imaginierte Zukunft.","tt45775478",null,0,null,"Doku","Fri 30 Oct 15:00 Metro, Kinosalon / Sat 31 Oct 16:30 Filmmuseum"],
+["ubergang","Übergang","Transition","Peter Badel, Chris Wright","DE",120,"F","Rund um den S-Bahnhof Schönhauser Allee in Prenzlauer Berg: Touristen, Anrainer, Durchgang.","tt43666082",null,0,null,"Doku","Sat 24 Oct 21:00 Filmmuseum / Sun 25 Oct 18:00 Stadtkino im Künstlerhaus"],
+["vertige","Le vertige","Vertiginous","Quentin Dupieux","FR",67,"F","Dupieux' neuester absurder Streich (Cannes), tiefer im Uncanny Valley als je zuvor.","tt42575634",6.2,446,null,"Komödie","Tue 27 Oct 23:30 Stadtkino im Künstlerhaus / Mon 02 Nov 13:30 Urania"],
+["vie-dune-femme","La Vie d'une femme","A Woman's Life","Charline Bourgeois-Tacquet","BE/FR",98,"F","Eine 55-jährige Kieferchirurgin, ganz Kontrolle und Disziplin, gerät durch eine neue Begegnung aus dem Gleichgewicht.","tt39299437",6.7,331,65,"Drama","Fri 23 Oct 13:30 Metro, Historischer Saal / Tue 03 Nov 13:00 Urania"],
+["violence-du-corps-de-lautre","Violence du corps de l'autre","Nobody's Violence","Denis Côté","CA",118,"F","Eine Sterbebegleiterin liefert für eine dubiose Firma tödliche Medikamente aus, bis ein Auftrag sie aus der Bahn wirft.","tt38512625",5.7,36,null,"Drama/Mystery","Fri 30 Oct 21:30 Urania / Sat 31 Oct 11:30 Stadtkino im Künstlerhaus"],
+["wareware-wa-uchujin","Wareware wa Uchujin","We Are Aliens","Kohei Kadowaki","JP/FR",117,"F","Anime-Debüt über zwei unzertrennliche Schulfreunde, Verrat und Rückblenden.","tt41830798",7.7,130,null,"Animation","Tue 27 Oct 12:45 Stadtkino im Künstlerhaus / Fri 30 Oct 11:00 Urania"],
+["weichen","Weichen","Dust","Tsai Ming-liang","TW/ES",80,"F","Teil elf der „Walker“-Reihe: Lee Kang-sheng als rot gewandeter Mönch geht in Zeitlupe durchs Baskenland. Ohne Dialog.","tt43704756",6.2,16,null,"Experimental","Tue 27 Oct 20:00 Metro, Kinosalon / Tue 03 Nov 15:30 Metro, Kinosalon"],
+["wind-one-brilliant-day","The Wind, One Brilliant Day","","Ben Rivers","CN/UK",7,"S","Tang Wei streift durch einen bunten Wald, nach einem Gedicht von Antonio Machado.","tt43661353",null,0,null,"Kurzfilm","Sun 01 Nov 16:15 Filmmuseum / Mon 02 Nov 18:00 Metro, Kinosalon"],
+["yesterday-eye-didnt-sleep","Yesterday the Eye Didn't Sleep","","Rakan Mayasi","PS u.a.",100,"F","Ein brennendes Auto, eine verschwundene Frau, zwei Stämme im Konflikt und zwei Schwestern mittendrin.","tt37775830",6.5,120,null,"Drama","Sun 25 Oct 21:30 Metro, Historischer Saal / Mon 26 Oct 17:30 Metro, Kinosalon"]
+];
+// Kategorie (eine pro Film) + Tags
+const KATS={D:"Drama",K:"Komödie",T:"Thriller & Genre",A:"Animation",O:"Dokumentarfilm",E:"Essay & Experimentell"};
+const TAGS=["Großer Name","Debüt","Österreich","Asien","Musik","Liebe","Familie","Coming-of-Age","Politik & Geschichte","Kunst & Kino","Queer","Literatur","Überlänge","Ohne Dialog"];
+const K={
+"1518":"D|Coming-of-Age",
+"9-temples-heaven":"D|Familie,Asien",
+"correspondence":"E|",
+"long-winter":"D|Coming-of-Age,Familie,Großer Name,Queer",
+"person-forest":"E|Politik & Geschichte",
+"ali-je-bilo-kaj-avantgardnega":"O|Kunst & Kino,Politik & Geschichte",
+"incomplete-calendar":"E|Politik & Geschichte,Musik",
+"night":"D|",
+"auslandsreise":"D|Literatur",
+"behemoth":"D|Musik,Großer Name,Familie",
+"bernd":"E|Österreich,Ohne Dialog",
+"bucking-fastard":"K|Großer Name",
+"bunker":"T|Großer Name",
+"chronovisor":"T|Literatur",
+"clarissa":"D|Literatur,Liebe",
+"corset":"A|Familie,Coming-of-Age,Musik",
+"crystal-palace":"E|Ohne Dialog",
+"da-xi-yang":"T|Debüt,Asien,Familie",
+"debut":"K|Musik,Großer Name",
+"difficult-bride":"T|Asien,Liebe",
+"du-ling-zhi-ying":"D|Kunst & Kino,Großer Name,Asien",
+"echo-chamber":"D|Musik,Liebe",
+"eight-bridges":"E|Ohne Dialog",
+"es-ist-da":"E|Österreich,Ohne Dialog,Literatur",
+"eternity":"O|Kunst & Kino",
+"everybody-digs-bill-evans":"D|Musik",
+"everytime":"D|Familie,Österreich",
+"fa-xian-zhi-lu":"T|Debüt,Asien",
+"figli-della-scimmia":"D|Familie",
+"filipinana":"K|Debüt,Asien",
+"fire-flies":"E|Asien",
+"fjord":"D|Familie,Großer Name",
+"foldszint":"K|",
+"foret-ivre":"D|",
+"inside-out-die-architektur-von-peter-zumthor":"O|Kunst & Kino,Großer Name",
+"ga-neung-han-sa-rang":"D|Liebe,Politik & Geschichte,Asien,Großer Name,Überlänge",
+"garance":"D|Kunst & Kino",
+"getraumte-abenteuer":"T|Österreich,Überlänge",
+"geunyeoga-doraon-nal":"D|Asien,Großer Name,Kunst & Kino",
+"ghazal-e-sorkh":"E|Politik & Geschichte,Literatur",
+"gradiva":"D|Coming-of-Age",
+"histoires-paralleles":"T|Großer Name,Literatur",
+"i-rarely-wake-dreaming":"D|Liebe,Queer,Politik & Geschichte",
+"imperium":"O|Politik & Geschichte,Überlänge",
+"inconnue":"T|",
+"islas-afortunadas":"E|Politik & Geschichte",
+"joie-de-vivre-pt-1":"O|Kunst & Kino,Großer Name,Überlänge",
+"joie-de-vivre-pt-2":"O|Kunst & Kino,Großer Name,Überlänge",
+"kettice":"D|Coming-of-Age",
+"kleine-buch":"E|Österreich,Ohne Dialog",
+"lave-forventninger":"D|Musik,Debüt",
+"leaving-light":"E|Österreich,Ohne Dialog",
+"loffel":"D|Politik & Geschichte",
+"london":"D|Österreich",
+"loneliest-man-town":"O|Musik,Österreich",
+"man-i-love":"D|Musik,Liebe,Queer",
+"manfriet":"E|Österreich,Ohne Dialog",
+"mara-ashaegh-chenan-bayad-ke-har-bari-ke-barkhizad-ghiamat-haaye-por-atash-ze-har-su-i":"O|Kunst & Kino",
+"masao-adachi-takes-passport-photo":"O|Kunst & Kino,Asien",
+"meine-frau-weint":"D|",
+"merci-detre-venu":"O|Kunst & Kino",
+"morgen-vor-langer-zeit":"E|Politik & Geschichte,Kunst & Kino",
+"morne-fortune":"E|Politik & Geschichte,Österreich",
+"nagidaiari":"D|Familie,Asien",
+"no-good-men":"K|Liebe,Politik & Geschichte",
+"noche-de-la-infancia":"O|Familie,Debüt",
+"normal-planet":"A|",
+"nun-dul-dega-eomne":"D|Asien,Großer Name",
+"oase":"D|Coming-of-Age,Österreich",
+"objet":"T|Liebe",
+"once-upon-time-harlem":"O|Musik,Kunst & Kino,Politik & Geschichte",
+"our-friendship-goes-far-beyond-these-experiences-and-recordings":"E|Liebe,Queer,Österreich",
+"providencia-e-guitarra":"K|Musik",
+"queen-sea":"D|Familie",
+"remotes":"T|Asien,Überlänge",
+"roches-rouges":"K|Liebe,Coming-of-Age",
+"rukku-bakku":"D|Coming-of-Age,Asien,Großer Name,Kunst & Kino",
+"schiuma-di-mondi":"D|Debüt,Politik & Geschichte",
+"seize-moments-de-ma-vie":"O|Musik",
+"sense-water":"D|Politik & Geschichte",
+"soudain":"D|Asien,Großer Name,Überlänge",
+"sounds-home":"O|Politik & Geschichte,Familie",
+"succedera-questa-notte":"K|Liebe,Großer Name",
+"tangles":"A|Queer,Familie",
+"too-much-sugar":"O|",
+"tutti-frutti":"E|Großer Name",
+"ubergang":"O|",
+"vertige":"K|",
+"vie-dune-femme":"D|Liebe",
+"violence-du-corps-de-lautre":"T|",
+"wareware-wa-uchujin":"A|Coming-of-Age,Asien,Debüt",
+"weichen":"E|Asien,Großer Name,Ohne Dialog",
+"wind-one-brilliant-day":"E|Asien,Literatur",
+"yesterday-eye-didnt-sleep":"D|Familie"
+};
+// Offizielle Trailer von den Viennale-Filmseiten (Index = Reihenfolge in D)
+const TR={1:"yt:m02q5G9rjSw",6:"vm:1175070159",7:"yt:yretfFi3TUI",9:"yt:TrMGdrCJ5Ck",12:"yt:Rq-vbHoU4iw",13:"yt:KPt2iZg7M50",14:"yt:sJAqmdXaM8U",15:"yt:ADYpuoQNJUA",18:"yt:clyzHmBx43E",19:"yt:hMymeU28Yaw",21:"yt:Hc-6dHlRDek",22:"yt:Grc4IuV4ecw",25:"yt:w0cAsmvRikk",26:"yt:L8WoyG-CD0w",28:"yt:ulmC9ddq5Ng",29:"yt:Mq-7rJqNJ4I",31:"yt:frg59VOungA",34:"yt:RRjN-kiT98k",36:"yt:80PxNHZ1GMk",37:"yt:0dG2cA7ESL0",40:"yt:zvXFtBuiNuc",41:"yt:y3BV9KeJzGM",44:"yt:mU0T6uD3yC8",48:"yt:d2HVb10vcFo",50:"yt:TjeXwelHydo",53:"yt:XVaZMA5e0jA",54:"yt:5wwiwSmSycw",55:"yt:RdBfLft2buY",59:"yt:o_JtW2AiXq0",64:"yt:ZCW6HIRw4wI",68:"yt:WDvqHqLPGUU",70:"yt:ctNb2eHlphU",72:"yt:ubbyLfcV5GQ",73:"yt:AyYaNvtC2i0",74:"yt:1k01TZQB00g",75:"yt:9VedXXUNWHc",76:"yt:SMaT_21Frh0",80:"yt:LVE7TGDVJQo",87:"yt:_LHZIviMEm4",88:"yt:RuBq-JlajtE",89:"yt:haMsJoQ25bA",90:"yt:SwJx9zbqHL8",93:"yt:sYCm_8CSch0"};
+D.forEach((f,i)=>{const t=TR[i];if(t){f.trailer=t.startsWith("yt:")?"https://www.youtube.com/watch?v="+t.slice(3):"https://vimeo.com/"+t.slice(3);f.trOff=true}else{f.trailer="https://www.youtube.com/results?search_query="+encodeURIComponent((f[2]&&f[6]==="F"&&!/…/.test(f[2])?f[2]:f[1])+" "+f[3].split(",")[0]+" trailer");f.trOff=false}});
+D.forEach(f=>{const [k,t]=(K[f[0]]||"D|").split("|");f.kat=k;f.tags=t?t.split(","):[];if(f[5]>=150&&!f.tags.includes("Überlänge"))f.tags.push("Überlänge")});
+const MON={Oct:10,Nov:11};
+function firstDate(s){const m=s.match(/(\d\d) (Oct|Nov) (\d\d):(\d\d)/);return m?(MON[m[2]]*1e6+ +m[1]*1e4+ +m[3]*100+ +m[4]):9e9}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const state={q:"",s:"all",sort:"r",minr:0,kat:"all",tags:[]};
+try{const sv=JSON.parse(localStorage.getItem("vn26b")||"{}");Object.assign(state,sv);if(!Array.isArray(state.tags))state.tags=[]}catch(e){}
+function render(){
+  chips();
+  const q=state.q.toLowerCase();
+  let rows=D.filter(f=>(state.s==="all"||f[6]===state.s)&&(state.kat==="all"||f.kat===state.kat)&&state.tags.every(t=>f.tags.includes(t))&&(!state.minr||(f[9]??0)>=state.minr)&&(!q||[f[1],f[2],f[3],f[4],f[7],f[12],f[13],KATS[f.kat],f.tags.join(" ")].join(" ").toLowerCase().includes(q)));
+  const k={r:f=>-((f[9]??-1)+(f[10]>=50?100:0)),mc:f=>-(f[11]??-1),v:f=>-f[10],date:f=>firstDate(f[13]),t:f=>f[1].toLowerCase()}[state.sort];
+  rows.sort((a,b)=>{const x=k(a),y=k(b);return x<y?-1:x>y?1:(b[10]-a[10])});
+  document.getElementById("count").textContent=rows.length+" von "+D.length;
+  document.getElementById("empty").hidden=rows.length>0;
+  document.getElementById("list").innerHTML=rows.map(f=>{
+    const r=f[9];const cls=r==null?"none":r>=7.5?"good":r>=6.5?"mid":"low";
+    const imdb=f[8]?`<a href="https://www.imdb.com/title/${f[8]}/" target="_blank" rel="noopener">IMDb</a>`:"";
+    return `<article class="film"><div class="main">
+      <div class="top"><h2 class="title">${esc(f[1])}</h2>${f[2]?`<span class="alt">${esc(f[2])}</span>`:""}</div>
+      <div class="meta">${esc(f[3])} · ${esc(f[4])} · ${f[5]} min</div>
+      <p class="desc">${esc(f[7])}</p>
+      <div class="tags"><span class="tag kat">${KATS[f.kat]}</span><span class="tag short">${f[6]==="S"?"Kurzfilm-Programm":"Langfilm"}</span>${f.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>
+      <div class="scr">${f[13].split(" / ").map(s=>`<span>${esc(s)}</span>`).join("")}</div>
+      <div class="links">
+        <a class="btn" href="${f.trailer}" target="_blank" rel="noopener">${f.trOff?"▶ Trailer":"▶ Trailer suchen"}</a>
+        <a href="https://www.viennale.at/en/film/${f[0]}" target="_blank" rel="noopener">Ausführliche Beschreibung</a>
+        <a href="https://letterboxd.com/search/films/${encodeURIComponent(f[1].replace(/ \(Teil \d\)/,""))}/" target="_blank" rel="noopener">Letterboxd</a>${imdb}</div>
+    </div><div class="stub"><span class="lab">IMDb</span><span class="r ${cls}">${r==null?"–":r.toFixed(1)}</span><span class="mc">${f[10]?f[10].toLocaleString("de-AT")+" Stimmen":"keine Stimmen"}</span>${f[11]?`<span class="mc">Meta <b>${f[11]}</b></span>`:""}</div></article>`}).join("");
+}
+const topList=D.filter(f=>f[10]>=100).sort((a,b)=>b[9]-a[9]).slice(0,3).map(f=>f[1]+" "+f[9].toFixed(1)).join(", ");
+document.getElementById("stats").innerHTML=`<span><b>${D.filter(f=>f[6]==="F").length}</b> Langfilme</span><span><b>${D.filter(f=>f[6]==="S").length}</b> Kurzfilme</span><span><b>${D.filter(f=>f[9]!=null).length}</b> mit IMDb-Rating</span><span>Top (≥100 Stimmen): <b>${esc(topList)}</b></span>`;
+function chips(){
+  const katEl=document.getElementById("kats"),tagEl=document.getElementById("tags");
+  const base=D.filter(f=>state.s==="all"||f[6]===state.s);
+  katEl.innerHTML=[["all","Alle"],...Object.entries(KATS)].map(([k,l])=>{const n=k==="all"?base.length:base.filter(f=>f.kat===k).length;return `<button class="chip" data-k="${k}" aria-pressed="${state.kat===k}">${l} <i>${n}</i></button>`}).join("");
+  const pool=base.filter(f=>state.kat==="all"||f.kat===state.kat);
+  tagEl.innerHTML=TAGS.map(t=>{const n=pool.filter(f=>f.tags.includes(t)&&state.tags.every(x=>f.tags.includes(x))).length;const on=state.tags.includes(t);return `<button class="chip tagchip" data-t="${t}" aria-pressed="${on}" ${!on&&!n?"disabled":""}>${t} <i>${n}</i></button>`}).join("")+(state.tags.length?`<button class="chip reset" id="reset">Tags zurücksetzen</button>`:"");
+  katEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{state.kat=b.dataset.k;save()});
+  tagEl.querySelectorAll("button[data-t]").forEach(b=>b.onclick=()=>{const t=b.dataset.t;state.tags=state.tags.includes(t)?state.tags.filter(x=>x!==t):[...state.tags,t];save()});
+  const r=document.getElementById("reset");if(r)r.onclick=()=>{state.tags=[];save()};
+}
+const qEl=document.getElementById("q"),sortEl=document.getElementById("sort"),minEl=document.getElementById("minr");
+qEl.value=state.q;sortEl.value=state.sort;minEl.value=String(state.minr);
+document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===state.s));
+function save(){try{localStorage.setItem("vn26b",JSON.stringify(state))}catch(e){}render()}
+qEl.addEventListener("input",()=>{state.q=qEl.value;save()});
+sortEl.addEventListener("change",()=>{state.sort=sortEl.value;save()});
+minEl.addEventListener("change",()=>{state.minr=+minEl.value;save()});
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{state.s=b.dataset.s;document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));save()}));
+render();
+</script>
+</body>
+</html>
